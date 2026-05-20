@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>胡鈞揚的遊樂場 Mini Games</title>
+    <title>鈞揚的遊樂場 Mini Games</title>
     <style>
         :root {
             --primary: #4a90e2;
@@ -113,7 +113,7 @@
         <div class="modal-content">
             <h2 style="font-size: 24px; color: #333; margin-bottom: 15px;">⚠️ 網頁申明條款</h2>
             <p style="text-align: left; line-height: 1.6; color: #666;">
-                你好！這是我測試製作的**HTML5**微型遊戲網頁！在您進入之前，請詳閱並同意以下內容：<br><br>
+                你好！這是我測試製作的HTML5微型遊戲網頁！在您進入之前，請詳閱並同意以下內容：<br><br>
                 <strong>1. 娛樂至上：</strong> 本網頁所有遊戲數據皆存於瀏覽器中，重新整理即會重置。<br>
                 <strong>2. 禁止拷貝：</strong> 所有代碼開源，不可以以自己名義發布。<br>
                 <strong>3. 最後：</strong> 玩得愉快！。
@@ -133,7 +133,7 @@
     </div>
 
     <header>
-        <h1>🎮 我的 HTML5 小遊戲精選集</h1>
+        <h1>🎮我的 HTML5 小遊戲精選集</h1>
         <p>切換上方選單開始玩遊戲吧！</p>
     </header>
 
@@ -194,11 +194,11 @@
     </div>
 
     <footer>
-        🌟 遊戲基地版權所有 © 2026 AI 共同協作開發成果 👾
+        🌟 大同大學 胡鈞揚 版權所有 © 2026  👾
     </footer>
 
     <script>
-        // === 0. 條款彈窗邏輯 ===
+        // ===條款彈窗邏輯 ===
         function acceptTerms() {
             document.getElementById('terms-modal').style.display = 'none';
         }
@@ -207,7 +207,7 @@
             document.getElementById('block-screen').style.display = 'flex';
         }
 
-        // === 1. 全局遊戲切換邏輯 ===
+        // ===全局遊戲切換邏輯 ===
         function switchGame(gameId) {
             document.querySelectorAll('.game-container').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('nav button').forEach(el => el.classList.remove('active'));
@@ -223,7 +223,7 @@
             if(gameId === 'wheel') initWheel();
         }
 
-        // === 2. 猜數字邏輯 ===
+        // ===猜數字邏輯 ===
         let targetNumber = Math.floor(Math.random() * 100) + 1;
         function checkGuess() {
             const input = document.getElementById('guess-input');
@@ -242,7 +242,7 @@
             document.getElementById('guess-input').value = "";
         }
 
-        // === 3. 反應時間測試邏輯 ===
+        // === 反應時間測試邏輯 ===
         let reactionState = "idle"; 
         let startTime, timerTimeout;
         const rBox = document.getElementById('reaction-box');
@@ -284,7 +284,7 @@
             }
         }
 
-        // === 4. 翻牌記憶配對邏輯 ===
+        // === 翻牌記憶配對邏輯 ===
         const items = ['🍎', '🍎', '🍌', '🍌', '🍇', '🍇', '🍉', '🍉', '🍒', '🍒', '🍓', '🍓', '🥑', '🥑', '🍍', '🍍'];
         let flippedCards = [];
         let matchedCount = 0;
@@ -343,7 +343,7 @@
             }
         }
 
-        // === 5. 打地鼠邏輯 ===
+        // === 打地鼠邏輯 ===
         let whackScore = 0;
         let whackTimeLeft = 15;
         let whackActiveHole = -1;
@@ -406,8 +406,8 @@
             document.getElementById('whack-start-btn').style.display = 'inline-block';
         }
 
-        // === 6. 幸運輪盤邏輯 ===
-        const options = ["火鍋", "滷肉飯", "麥當勞", "拉麵", "便利商店", "健康餐盒"];
+        // ===幸運輪盤邏輯 ===
+        const options = ["大吉", "中吉", "小吉", "末吉", "凶", "大凶"];
         const colors = ["#ff9999", "#ffcc99", "#ffff99", "#b3ffb3", "#99ccff", "#cc99ff"];
         let startAngle = 0;
         const arc = Math.PI / (options.length / 2);
@@ -452,9 +452,9 @@
                 isSpinning = false;
                 // 計算落點
                 const degrees = spinAngleStart % 360;
-                // 輪盤指針在上方(即-90度或270度方向)，做角度校正計算對應索引
+                // 輪盤指針在上方做角度校正計算對應索引
                 const index = Math.floor(((360 - degrees + 270) % 360) / (360 / options.length));
-                document.getElementById('wheel-result').innerText = `🎉 決定了！今天就吃：【${options[index]}】`;
+                document.getElementById('wheel-result').innerText = `🎉 你的籤是：【${options[index]}】`;
             }, 4000); // 對應 CSS 的 transition 4 秒
         }
 
