@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的遊樂場 Mini Games</title>
+    <title>胡鈞揚的遊樂場 Mini Games</title>
     <style>
         :root {
             --primary: #4a90e2;
+            --success: #2ecc71;
+            --danger: #e74c3c;
             --bg: #f5f7fa;
             --card-bg: #ffffff;
             --text: #333333;
@@ -20,97 +22,208 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
         }
-        header { margin-bottom: 30px; text-align: center; }
+        header { margin-bottom: 20px; text-align: center; }
         
         /* 導覽選單 */
         nav { margin-bottom: 30px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
         nav button {
-            padding: 10px 20px; font-size: 16px; border: none; border-radius: 8px;
-            background-color: #ddd; cursor: pointer; transition: 0.2s;
+            padding: 10px 18px; font-size: 15px; border: none; border-radius: 8px;
+            background-color: #ddd; cursor: pointer; transition: 0.2s; font-weight: bold;
         }
         nav button.active { background-color: var(--primary); color: white; }
 
         /* 遊戲視窗容器 */
         .game-container {
             background: var(--card-bg); padding: 30px; border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 500px;
-            min-height: 250px; display: none; text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08); width: 100%; max-width: 500px;
+            min-height: 300px; display: none; text-align: center; box-sizing: border-box;
         }
         .game-container.active { display: block; }
 
-        /* 通用元件樣式 */
+        /* 通用元件 */
         input, button.game-btn {
             padding: 10px; font-size: 16px; margin: 10px 5px; border-radius: 6px; border: 1px solid #ccc;
         }
-        button.game-btn { background: var(--primary); color: white; border: none; cursor: pointer; }
+        button.game-btn { background: var(--primary); color: white; border: none; cursor: pointer; font-weight: bold;}
         
-        /* 反應測試專用樣式 */
+        /* 彈窗和BLOCK */
+        .overlay {
+            position: fixed; top:0; left:0; width:100%; height:100%; 
+            background: rgba(0,0,0,0.75); display: flex; justify-content: center; 
+            align-items: center; z-index: 999; padding: 20px; box-sizing: border-box;
+        }
+        .modal-content {
+            background: white; padding: 30px; border-radius: 12px; max-width: 450px; 
+            width: 100%; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .modal-btns { display: flex; justify-content: center; gap: 15px; margin-top: 25px; }
+        .btn-agree { background-color: var(--success); color: white; border: none; padding: 12px 25px; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold;}
+        .btn-cancel { background-color: var(--danger); color: white; border: none; padding: 12px 25px; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold;}
+        #block-screen { display: none; color: white; text-align: center; font-size: 24px; font-weight: bold;}
+
+        /* 反應測試方塊 */
         #reaction-box {
-            width: 100%; height: 200px; background-color: #e74c3c; color: white;
+            width: 100%; height: 200px; background-color: var(--danger); color: white;
             display: flex; align-items: center; justify-content: center;
             font-size: 24px; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 15px;
+            user-select: none;
         }
+
+        /* 翻牌記憶配對 */
+        .memory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 20px; }
+        .memory-card {
+            height: 70px; background-color: #34495e; color: transparent;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 28px; border-radius: 8px; cursor: pointer; user-select: none; transition: transform 0.2s;
+        }
+        .memory-card.flipped { background-color: #f1c40f; color: #fff; transform: rotateY(180deg); }
+        .memory-card.matched { background-color: var(--success); color: #fff; cursor: default; }
+
+        /* 打地鼠 */
+        .whack-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 20px; }
+        .whack-hole {
+            height: 90px; background-color: #795548; border-radius: 50%;
+            position: relative; overflow: hidden; cursor: pointer; border: 4px solid #5d4037;
+        }
+        .whack-mole {
+            width: 100%; height: 100%; background-color: #ffb74d; border-radius: 50%;
+            position: absolute; top: 100%; transition: top 0.1s;
+        }
+        .whack-hole.active .whack-mole { top: 15%; background-color: #a1887f; }
+
+        /* 幸運輪盤 */
+        .wheel-container { position: relative; width: 200px; height: 200px; margin: 20px auto; }
+        #canvas-wheel { border-radius: 50%; transition: transform 4s cubic-bezier(0.1, 0.8, 0.1, 1); }
+        .wheel-pointer {
+            position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
+            width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent;
+            border-top: 25px solid #e74c3c; z-index: 10;
+        }
+
+        /* 頁尾*/
+        footer { margin-top: auto; padding: 30px 0 10px 0; font-size: 14px; color: #888; text-align: center; width: 100%; }
     </style>
 </head>
 <body>
+
+    <div id="terms-modal" class="overlay">
+        <div class="modal-content">
+            <h2 style="font-size: 24px; color: #333; margin-bottom: 15px;">⚠️ 網頁申明條款</h2>
+            <p style="text-align: left; line-height: 1.6; color: #666;">
+                你好！這是我測試製作的**HTML5**微型遊戲網頁！在您進入之前，請詳閱並同意以下內容：<br><br>
+                <strong>1. 娛樂至上：</strong> 本網頁所有遊戲數據皆存於瀏覽器中，重新整理即會重置。<br>
+                <strong>2. 禁止拷貝：</strong> 所有代碼開源，不可以以自己名義發布。<br>
+                <strong>3. 最後：</strong> 玩得愉快！。
+            </p>
+            <div class="modal-btns">
+                <button class="btn-agree" onclick="acceptTerms()">同意進入</button>
+                <button class="btn-cancel" onclick="rejectTerms()">拒絕並離開</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="block-screen" class="overlay" style="display: none;">
+        <div>
+            <p>❌ 由於您拒絕了使用者條款，我們無法為您開放遊戲權限。</p>
+            <p style="font-size: 16px; color: #aaa; margin-top: 10px;">請重新整理網頁並點選「同意」以解除封鎖。</p>
+        </div>
+    </div>
 
     <header>
         <h1>🎮 我的 HTML5 小遊戲精選集</h1>
         <p>切換上方選單開始玩遊戲吧！</p>
     </header>
 
-    <!-- 遊戲切換選單 -->
     <nav>
-        <button onclick="switchGame('guess')" id="btn-guess" class="active">猜數字</button>
-        <button onclick="switchGame('rps')" id="btn-rps">剪刀石頭布</button>
-        <button onclick="switchGame('reaction')" id="btn-reaction">反應時間測試</button>
+        <button onclick="switchGame('guess')" id="btn-guess" class="active">🔢 猜數字</button>
+        <button onclick="switchGame('reaction')" id="btn-reaction">⚡ 反應時間</button>
+        <button onclick="switchGame('memory')" id="btn-memory">🧠 翻牌配對</button>
+        <button onclick="switchGame('whack')" id="btn-whack">🔨 打地鼠</button>
+        <button onclick="switchGame('wheel')" id="btn-wheel">🎡 幸運輪盤</button>
     </nav>
 
-    <!-- 猜數字 -->
     <div id="game-guess" class="game-container active">
         <h2>🔢 終極猜數字 (1-100)</h2>
         <p id="guess-hint">請在下方輸入數字開始猜...</p>
-        <input type="number" id="guess-input" min="1" max="100">
-        <button class="game-btn" onclick="checkGuess()">送出</button>
-        <button class="game-btn" onclick="resetGuess()" style="background:#888;">重置</button>
+        <input type="number" id="guess-input" min="1" max="100" style="width: 80px; text-align: center;">
+        <br>
+        <button class="game-btn" onclick="checkGuess()">送出答案</button>
+        <button class="game-btn" onclick="resetGuess()" style="background:#888;">重置新局</button>
     </div>
 
-    <!-- 剪刀石頭布 -->
-    <div id="game-rps" class="game-container">
-        <h2>✊ 剪刀石頭布</h2>
-        <p>請出拳：</p>
-        <button class="game-btn" onclick="playRPS('✊')">✊ 石頭</button>
-        <button class="game-btn" onclick="playRPS('✌️')">✌️ 剪刀</button>
-        <button class="game-btn" onclick="playRPS('🖐️')">🖐️ 布</button>
-        <div id="rps-result" style="margin-top: 20px; font-size: 18px;"></div>
-    </div>
-
-    <!-- 反應時間測試 -->
     <div id="game-reaction" class="game-container">
         <h2>⚡ 反應時間測試</h2>
-        <p>點擊下方方塊開始。當方塊變為 **綠色** 時，請「立刻」點擊它！</p>
+        <p>點擊下方方塊開始。當方塊變為 <strong>綠色</strong> 時，請「立刻」點擊它！</p>
         <div id="reaction-box" onclick="handleReactionClick()">點擊這裡開始</div>
-        <p id="reaction-result"></p>
+        <p id="reaction-result" style="font-weight: bold; font-size: 18px; margin-top: 15px;"></p>
     </div>
 
+    <div id="game-memory" class="game-container">
+        <h2>🧠 翻牌記憶配對</h2>
+        <p>找出所有配對的水果卡牌！ 步數：<span id="memory-flips">0</span></p>
+        <div class="memory-grid" id="memory-board"></div>
+        <button class="game-btn" onclick="resetMemory()" style="margin-top:20px; background:#888;">重新洗牌</button>
+    </div>
+
+    <div id="game-whack" class="game-container">
+        <h2>🔨 瘋狂打地鼠 (15秒挑戰)</h2>
+        <p>得分：<span id="whack-score" style="font-weight:bold; color:var(--primary);">0</span> | 剩餘時間：<span id="whack-time">15</span> 秒</p>
+        <button class="game-btn" id="whack-start-btn" onclick="startWhack()">開始遊戲</button>
+        <div class="whack-grid">
+            <div class="whack-hole" onclick="hitMole(0)"><div class="whack-mole"></div></div>
+            <div class="whack-hole" onclick="hitMole(1)"><div class="whack-mole"></div></div>
+            <div class="whack-hole" onclick="hitMole(2)"><div class="whack-mole"></div></div>
+            <div class="whack-hole" onclick="hitMole(3)"><div class="whack-mole"></div></div>
+            <div class="whack-hole" onclick="hitMole(4)"><div class="whack-mole"></div></div>
+            <div class="whack-hole" onclick="hitMole(5)"><div class="whack-mole"></div></div>
+        </div>
+    </div>
+
+    <div id="game-wheel" class="game-container">
+        <h2>🎡 命運幸運大輪盤</h2>
+        <p>今天晚餐吃什麼？轉動輪盤決定吧！</p>
+        <div class="wheel-container">
+            <div class="wheel-pointer"></div>
+            <canvas id="canvas-wheel" width="200" height="200"></canvas>
+        </div>
+        <button class="game-btn" id="wheel-spin-btn" onclick="spinWheel()">開始抽籤</button>
+        <p id="wheel-result" style="font-size: 20px; font-weight: bold; color: #e67e22; margin-top: 15px;"></p>
+    </div>
+
+    <footer>
+        🌟 遊戲基地版權所有 © 2026 AI 共同協作開發成果 👾
+    </footer>
+
     <script>
-        // ===  遊戲切換邏輯 ===
+        // === 0. 條款彈窗邏輯 ===
+        function acceptTerms() {
+            document.getElementById('terms-modal').style.display = 'none';
+        }
+        function rejectTerms() {
+            document.getElementById('terms-modal').style.display = 'none';
+            document.getElementById('block-screen').style.display = 'flex';
+        }
+
+        // === 1. 全局遊戲切換邏輯 ===
         function switchGame(gameId) {
-            // 隱藏所有遊戲，移除按鈕高亮
             document.querySelectorAll('.game-container').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('nav button').forEach(el => el.classList.remove('active'));
             
-            // 顯示指定遊戲，高亮對應按鈕
             document.getElementById(`game-${gameId}`).classList.add('active');
             document.getElementById(`btn-${gameId}`).classList.add('active');
             
-            // 切換時順便重置遊戲狀態
+            // 切換時清除或重置特定遊戲狀態，避免計時器殘留
             if(gameId === 'guess') resetGuess();
             if(gameId === 'reaction') resetReaction();
+            if(gameId === 'memory') resetMemory();
+            if(gameId === 'whack') endWhackGame();
+            if(gameId === 'wheel') initWheel();
         }
 
-        // === 猜數字邏輯 ===
+        // === 2. 猜數字邏輯 ===
         let targetNumber = Math.floor(Math.random() * 100) + 1;
         function checkGuess() {
             const input = document.getElementById('guess-input');
@@ -118,39 +231,19 @@
             const guess = parseInt(input.value);
             if (isNaN(guess)) { hint.innerText = "請輸入有效的數字！"; return; }
             
-            if (guess === targetNumber) { hint.innerText = "🎉 答對了！就是 " + targetNumber; } 
-            else if (guess < targetNumber) { hint.innerText = "📉 太小了，再大一點！"; } 
-            else { hint.innerText = "📈 太大了，再小一點！"; }
+            if (guess === targetNumber) { hint.innerText = "🎉 答對了！答案就是 " + targetNumber; hint.style.color = "var(--success)";} 
+            else if (guess < targetNumber) { hint.innerText = "📉 太小了，再大一點！"; hint.style.color = "var(--text)";} 
+            else { hint.innerText = "📈 太大了，再小一點！"; hint.style.color = "var(--text)";}
         }
         function resetGuess() {
             targetNumber = Math.floor(Math.random() * 100) + 1;
             document.getElementById('guess-hint').innerText = "新一輪開始！請輸入數字 (1-100)...";
+            document.getElementById('guess-hint').style.color = "var(--text)";
             document.getElementById('guess-input').value = "";
         }
 
-        // ===  剪刀石頭布邏輯 ===
-        function playRPS(userChoice) {
-            const choices = ['✊', '✌️', '🖐️'];
-            const computerChoice = choices[Math.floor(Math.random() * 3)];
-            let result = "";
-            
-            if (userChoice === computerChoice) { result = "平手！ 🤝"; } 
-            else if (
-                (userChoice === '✊' && computerChoice === '✌️') ||
-                (userChoice === '✌️' && computerChoice === '🖐️') ||
-                (userChoice === '🖐️' && computerChoice === '✊')
-            ) { result = "你贏了！ 🎉"; } 
-            else { result = "你輸了... 😢"; }
-            
-            document.getElementById('rps-result').innerHTML = `
-                你出了：${userChoice} <br>
-                電腦出：${computerChoice} <br>
-                <strong>結果：${result}</strong>
-            `;
-        }
-
-        // ===  反應時間測試邏輯 ===
-        let reactionState = "idle"; // idle, waiting, ready
+        // === 3. 反應時間測試邏輯 ===
+        let reactionState = "idle"; 
         let startTime, timerTimeout;
         const rBox = document.getElementById('reaction-box');
         const rResult = document.getElementById('reaction-result');
@@ -158,7 +251,7 @@
         function resetReaction() {
             clearTimeout(timerTimeout);
             reactionState = "idle";
-            rBox.style.backgroundColor = "#e74c3c";
+            rBox.style.backgroundColor = "var(--danger)";
             rBox.innerText = "點擊這裡開始";
             rResult.innerText = "";
         }
@@ -169,31 +262,206 @@
                 rBox.innerText = "等候綠燈...";
                 rResult.innerText = "";
                 
-                // 隨機 2~5 秒後變綠燈
                 const randomDelay = Math.random() * 3000 + 2000;
                 timerTimeout = setTimeout(() => {
                     reactionState = "ready";
-                    rBox.style.backgroundColor = "#2ecc71";
-                    rBox.innerText = "點擊！！！";
+                    rBox.style.backgroundColor = "var(--success)";
+                    rBox.innerText = "就是現在！點擊！！！";
                     startTime = Date.now();
                 }, randomDelay);
             } else if (reactionState === "waiting") {
-                // 偷跑
                 clearTimeout(timerTimeout);
                 reactionState = "idle";
-                rBox.style.backgroundColor = "#e74c3c";
+                rBox.style.backgroundColor = "var(--danger)";
                 rBox.innerText = "太快了！按此重試";
-                rResult.innerText = "你在綠燈亮起前就按了，點擊方塊重新挑戰。";
+                rResult.innerText = "❌ 偷跑！請在變綠燈後再點擊。";
             } else if (reactionState === "ready") {
-                // 成功點擊
-                const endTime = Date.now();
-                const duration = endTime - startTime;
+                const duration = Date.now() - startTime;
                 reactionState = "idle";
                 rBox.style.backgroundColor = "#34495e";
                 rBox.innerText = "挑戰結束！再玩一次";
-                rResult.innerText = `您的反應時間是：${duration} 毫秒 (ms)！`;
+                rResult.innerText = `⏱️ 您的反應時間是：${duration} 毫秒 (ms)！`;
             }
         }
+
+        // === 4. 翻牌記憶配對邏輯 ===
+        const items = ['🍎', '🍎', '🍌', '🍌', '🍇', '🍇', '🍉', '🍉', '🍒', '🍒', '🍓', '🍓', '🥑', '🥑', '🍍', '🍍'];
+        let flippedCards = [];
+        let matchedCount = 0;
+        let flipCount = 0;
+        let isWaiting = false;
+
+        function resetMemory() {
+            const board = document.getElementById('memory-board');
+            board.innerHTML = '';
+            flippedCards = [];
+            matchedCount = 0;
+            flipCount = 0;
+            isWaiting = false;
+            document.getElementById('memory-flips').innerText = flipCount;
+
+            // 洗牌算法
+            const shuffled = [...items].sort(() => Math.random() - 0.5);
+            shuffled.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.classList.add('memory-card');
+                card.dataset.value = item;
+                card.dataset.id = index;
+                card.innerText = item;
+                card.addEventListener('click', flipCard);
+                board.appendChild(card);
+            });
+        }
+        function flipCard() {
+            if (isWaiting || this.classList.contains('flipped') || this.classList.contains('matched')) return;
+
+            this.classList.add('flipped');
+            flippedCards.push(this);
+
+            if (flippedCards.length === 2) {
+                flipCount++;
+                document.getElementById('memory-flips').innerText = flipCount;
+                isWaiting = true;
+
+                if (flippedCards[0].dataset.value === flippedCards[1].dataset.value) {
+                    flippedCards[0].classList.add('matched');
+                    flippedCards[1].classList.add('matched');
+                    matchedCount += 2;
+                    flippedCards = [];
+                    isWaiting = false;
+                    if (matchedCount === items.length) {
+                        setTimeout(() => alert(`🎉 太強了！你花了 ${flipCount} 步完成配對！`), 300);
+                    }
+                } else {
+                    setTimeout(() => {
+                        flippedCards[0].classList.remove('flipped');
+                        flippedCards[1].classList.remove('flipped');
+                        flippedCards = [];
+                        isWaiting = false;
+                    }, 1000);
+                }
+            }
+        }
+
+        // === 5. 打地鼠邏輯 ===
+        let whackScore = 0;
+        let whackTimeLeft = 15;
+        let whackActiveHole = -1;
+        let whackGameInterval, whackMoleTimeout;
+        let isWhackPlaying = false;
+
+        function startWhack() {
+            if (isWhackPlaying) return;
+            isWhackPlaying = true;
+            whackScore = 0;
+            whackTimeLeft = 15;
+            document.getElementById('whack-score').innerText = whackScore;
+            document.getElementById('whack-time').innerText = whackTimeLeft;
+            document.getElementById('whack-start-btn').style.display = 'none';
+
+            whackGameInterval = setInterval(() => {
+                whackTimeLeft--;
+                document.getElementById('whack-time').innerText = whackTimeLeft;
+                if (whackTimeLeft <= 0) {
+                    endWhackGame();
+                    alert(`⏰ 時間到！你的最終得分是：${whackScore} 分！`);
+                }
+            }, 1000);
+
+            showMole();
+        }
+        function showMole() {
+            if (!isWhackPlaying) return;
+            const holes = document.querySelectorAll('.whack-hole');
+            holes.forEach(h => h.classList.remove('active'));
+
+            let randHole;
+            do { randHole = Math.floor(Math.random() * 6); } while (randHole === whackActiveHole);
+            
+            whackActiveHole = randHole;
+            holes[whackActiveHole].classList.add('active');
+
+            // 地鼠停留時間隨機 (600ms ~ 1000ms)
+            const duration = Math.random() * 400 + 600;
+            whackMoleTimeout = setTimeout(() => {
+                showMole();
+            }, duration);
+        }
+        function hitMole(holeIndex) {
+            if (!isWhackPlaying) return;
+            if (holeIndex === whackActiveHole) {
+                whackScore++;
+                document.getElementById('whack-score').innerText = whackScore;
+                document.querySelectorAll('.whack-hole')[whackActiveHole].classList.remove('active');
+                whackActiveHole = -1;
+                clearTimeout(whackMoleTimeout);
+                showMole(); // 打中後立刻更換位置
+            }
+        }
+        function endWhackGame() {
+            isWhackPlaying = false;
+            clearInterval(whackGameInterval);
+            clearTimeout(whackMoleTimeout);
+            document.querySelectorAll('.whack-hole').forEach(h => h.classList.remove('active'));
+            document.getElementById('whack-start-btn').style.display = 'inline-block';
+        }
+
+        // === 6. 幸運輪盤邏輯 ===
+        const options = ["火鍋", "滷肉飯", "麥當勞", "拉麵", "便利商店", "健康餐盒"];
+        const colors = ["#ff9999", "#ffcc99", "#ffff99", "#b3ffb3", "#99ccff", "#cc99ff"];
+        let startAngle = 0;
+        const arc = Math.PI / (options.length / 2);
+        let isSpinning = false;
+
+        function initWheel() {
+            const canvas = document.getElementById("canvas-wheel");
+            if (!canvas.getContext) return;
+            const ctx = canvas.getContext("2d");
+            ctx.clearRect(0,0,200,200);
+            
+            for (let i = 0; i < options.length; i++) {
+                const angle = startAngle + i * arc;
+                ctx.fillStyle = colors[i];
+                ctx.beginPath();
+                ctx.moveTo(100, 100);
+                ctx.arc(100, 100, 100, angle, angle + arc, false);
+                ctx.lineTo(100, 100);
+                ctx.fill();
+
+                // 繪製文字
+                ctx.save();
+                ctx.fillStyle = "#333";
+                ctx.font = "bold 12px sans-serif";
+                ctx.translate(100 + Math.cos(angle + arc / 2) * 60, 100 + Math.sin(angle + arc / 2) * 60);
+                ctx.rotate(angle + arc / 2 + Math.PI / 2);
+                ctx.fillText(options[i], -ctx.measureText(options[i]).width / 2, 0);
+                ctx.restore();
+            }
+        }
+        function spinWheel() {
+            if (isSpinning) return;
+            isSpinning = true;
+            document.getElementById('wheel-result').innerText = "命運之輪瘋狂轉動中...";
+            
+            // 隨機旋轉度數 (保證至少轉 5 圈以上)
+            const spinAngleStart = Math.random() * 1000 + 2000;
+            const wheel = document.getElementById('canvas-wheel');
+            wheel.style.transform = `rotate(${spinAngleStart}deg)`;
+
+            setTimeout(() => {
+                isSpinning = false;
+                // 計算落點
+                const degrees = spinAngleStart % 360;
+                // 輪盤指針在上方(即-90度或270度方向)，做角度校正計算對應索引
+                const index = Math.floor(((360 - degrees + 270) % 360) / (360 / options.length));
+                document.getElementById('wheel-result').innerText = `🎉 決定了！今天就吃：【${options[index]}】`;
+            }, 4000); // 對應 CSS 的 transition 4 秒
+        }
+
+        // 初始化執行
+        window.onload = () => {
+            initWheel();
+        };
     </script>
 </body>
 </html>
