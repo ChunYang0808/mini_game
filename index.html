@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的遊樂場 Mini Games</title>
+    <style>
+        :root {
+            --primary: #4a90e2;
+            --bg: #f5f7fa;
+            --card-bg: #ffffff;
+            --text: #333333;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        header { margin-bottom: 30px; text-align: center; }
+        
+        /* 導覽選單 */
+        nav { margin-bottom: 30px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+        nav button {
+            padding: 10px 20px; font-size: 16px; border: none; border-radius: 8px;
+            background-color: #ddd; cursor: pointer; transition: 0.2s;
+        }
+        nav button.active { background-color: var(--primary); color: white; }
+
+        /* 遊戲視窗容器 */
+        .game-container {
+            background: var(--card-bg); padding: 30px; border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 500px;
+            min-height: 250px; display: none; text-align: center;
+        }
+        .game-container.active { display: block; }
+
+        /* 通用元件樣式 */
+        input, button.game-btn {
+            padding: 10px; font-size: 16px; margin: 10px 5px; border-radius: 6px; border: 1px solid #ccc;
+        }
+        button.game-btn { background: var(--primary); color: white; border: none; cursor: pointer; }
+        
+        /* 反應測試專用樣式 */
+        #reaction-box {
+            width: 100%; height: 200px; background-color: #e74c3c; color: white;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🎮 我的 HTML5 小遊戲精選集</h1>
+        <p>切換上方選單開始玩遊戲吧！</p>
+    </header>
+
+    <!-- 遊戲切換選單 -->
+    <nav>
+        <button onclick="switchGame('guess')" id="btn-guess" class="active">猜數字</button>
+        <button onclick="switchGame('rps')" id="btn-rps">剪刀石頭布</button>
+        <button onclick="switchGame('reaction')" id="btn-reaction">反應時間測試</button>
+    </nav>
+
+    <!-- 猜數字 -->
+    <div id="game-guess" class="game-container active">
+        <h2>🔢 終極猜數字 (1-100)</h2>
+        <p id="guess-hint">請在下方輸入數字開始猜...</p>
+        <input type="number" id="guess-input" min="1" max="100">
+        <button class="game-btn" onclick="checkGuess()">送出</button>
+        <button class="game-btn" onclick="resetGuess()" style="background:#888;">重置</button>
+    </div>
+
+    <!-- 剪刀石頭布 -->
+    <div id="game-rps" class="game-container">
+        <h2>✊ 剪刀石頭布</h2>
+        <p>請出拳：</p>
+        <button class="game-btn" onclick="playRPS('✊')">✊ 石頭</button>
+        <button class="game-btn" onclick="playRPS('✌️')">✌️ 剪刀</button>
+        <button class="game-btn" onclick="playRPS('🖐️')">🖐️ 布</button>
+        <div id="rps-result" style="margin-top: 20px; font-size: 18px;"></div>
+    </div>
+
+    <!-- 反應時間測試 -->
+    <div id="game-reaction" class="game-container">
+        <h2>⚡ 反應時間測試</h2>
+        <p>點擊下方方塊開始。當方塊變為 **綠色** 時，請「立刻」點擊它！</p>
+        <div id="reaction-box" onclick="handleReactionClick()">點擊這裡開始</div>
+        <p id="reaction-result"></p>
+    </div>
+
+    <script>
+        // ===  遊戲切換邏輯 ===
+        function switchGame(gameId) {
+            // 隱藏所有遊戲，移除按鈕高亮
+            document.querySelectorAll('.game-container').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('nav button').forEach(el => el.classList.remove('active'));
+            
+            // 顯示指定遊戲，高亮對應按鈕
+            document.getElementById(`game-${gameId}`).classList.add('active');
+            document.getElementById(`btn-${gameId}`).classList.add('active');
+            
+            // 切換時順便重置遊戲狀態
+            if(gameId === 'guess') resetGuess();
+            if(gameId === 'reaction') resetReaction();
+        }
+
+        // === 猜數字邏輯 ===
+        let targetNumber = Math.floor(Math.random() * 100) + 1;
+        function checkGuess() {
+            const input = document.getElementById('guess-input');
+            const hint = document.getElementById('guess-hint');
+            const guess = parseInt(input.value);
+            if (isNaN(guess)) { hint.innerText = "請輸入有效的數字！"; return; }
+            
+            if (guess === targetNumber) { hint.innerText = "🎉 答對了！就是 " + targetNumber; } 
+            else if (guess < targetNumber) { hint.innerText = "📉 太小了，再大一點！"; } 
+            else { hint.innerText = "📈 太大了，再小一點！"; }
+        }
+        function resetGuess() {
+            targetNumber = Math.floor(Math.random() * 100) + 1;
+            document.getElementById('guess-hint').innerText = "新一輪開始！請輸入數字 (1-100)...";
+            document.getElementById('guess-input').value = "";
+        }
+
+        // ===  剪刀石頭布邏輯 ===
+        function playRPS(userChoice) {
+            const choices = ['✊', '✌️', '🖐️'];
+            const computerChoice = choices[Math.floor(Math.random() * 3)];
+            let result = "";
+            
+            if (userChoice === computerChoice) { result = "平手！ 🤝"; } 
+            else if (
+                (userChoice === '✊' && computerChoice === '✌️') ||
+                (userChoice === '✌️' && computerChoice === '🖐️') ||
+                (userChoice === '🖐️' && computerChoice === '✊')
+            ) { result = "你贏了！ 🎉"; } 
+            else { result = "你輸了... 😢"; }
+            
+            document.getElementById('rps-result').innerHTML = `
+                你出了：${userChoice} <br>
+                電腦出：${computerChoice} <br>
+                <strong>結果：${result}</strong>
+            `;
+        }
+
+        // ===  反應時間測試邏輯 ===
+        let reactionState = "idle"; // idle, waiting, ready
+        let startTime, timerTimeout;
+        const rBox = document.getElementById('reaction-box');
+        const rResult = document.getElementById('reaction-result');
+
+        function resetReaction() {
+            clearTimeout(timerTimeout);
+            reactionState = "idle";
+            rBox.style.backgroundColor = "#e74c3c";
+            rBox.innerText = "點擊這裡開始";
+            rResult.innerText = "";
+        }
+        function handleReactionClick() {
+            if (reactionState === "idle") {
+                reactionState = "waiting";
+                rBox.style.backgroundColor = "#f1c40f";
+                rBox.innerText = "等候綠燈...";
+                rResult.innerText = "";
+                
+                // 隨機 2~5 秒後變綠燈
+                const randomDelay = Math.random() * 3000 + 2000;
+                timerTimeout = setTimeout(() => {
+                    reactionState = "ready";
+                    rBox.style.backgroundColor = "#2ecc71";
+                    rBox.innerText = "點擊！！！";
+                    startTime = Date.now();
+                }, randomDelay);
+            } else if (reactionState === "waiting") {
+                // 偷跑
+                clearTimeout(timerTimeout);
+                reactionState = "idle";
+                rBox.style.backgroundColor = "#e74c3c";
+                rBox.innerText = "太快了！按此重試";
+                rResult.innerText = "你在綠燈亮起前就按了，點擊方塊重新挑戰。";
+            } else if (reactionState === "ready") {
+                // 成功點擊
+                const endTime = Date.now();
+                const duration = endTime - startTime;
+                reactionState = "idle";
+                rBox.style.backgroundColor = "#34495e";
+                rBox.innerText = "挑戰結束！再玩一次";
+                rResult.innerText = `您的反應時間是：${duration} 毫秒 (ms)！`;
+            }
+        }
+    </script>
+</body>
+</html>
