@@ -133,7 +133,7 @@
     </div>
 
     <header>
-        <h1>🎮小遊戲精選集</h1>
+        <h1>小遊戲精選集</h1>
         <p>切換上方選單開始玩遊戲吧！</p>
     </header>
 
@@ -198,7 +198,7 @@
     </footer>
 
     <script>
-        // ===條款彈窗邏輯 ===
+        
         function acceptTerms() {
             document.getElementById('terms-modal').style.display = 'none';
         }
@@ -207,7 +207,7 @@
             document.getElementById('block-screen').style.display = 'flex';
         }
 
-        // ===全局遊戲切換邏輯 ===
+       
         function switchGame(gameId) {
             document.querySelectorAll('.game-container').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('nav button').forEach(el => el.classList.remove('active'));
@@ -215,7 +215,7 @@
             document.getElementById(`game-${gameId}`).classList.add('active');
             document.getElementById(`btn-${gameId}`).classList.add('active');
             
-            // 切換時清除或重置特定遊戲狀態，避免計時器殘留
+            
             if(gameId === 'guess') resetGuess();
             if(gameId === 'reaction') resetReaction();
             if(gameId === 'memory') resetMemory();
@@ -381,7 +381,7 @@
             whackActiveHole = randHole;
             holes[whackActiveHole].classList.add('active');
 
-            // 地鼠停留時間隨機 (600ms ~ 1000ms)
+            // 地鼠停留時間隨機
             const duration = Math.random() * 400 + 600;
             whackMoleTimeout = setTimeout(() => {
                 showMole();
@@ -443,7 +443,7 @@
             isSpinning = true;
             document.getElementById('wheel-result').innerText = "命運之輪瘋狂轉動中...";
             
-            // 隨機旋轉度數 (保證至少轉 5 圈以上)
+            // 隨機旋轉度數
             const spinAngleStart = Math.random() * 1000 + 2000;
             const wheel = document.getElementById('canvas-wheel');
             wheel.style.transform = `rotate(${spinAngleStart}deg)`;
@@ -452,13 +452,13 @@
                 isSpinning = false;
                 // 計算落點
                 const degrees = spinAngleStart % 360;
-                // 輪盤指針在上方做角度校正計算對應索引
+                
                 const index = Math.floor(((360 - degrees + 270) % 360) / (360 / options.length));
                 document.getElementById('wheel-result').innerText = `🎉 你的籤是：【${options[index]}】`;
             }, 4000); 
         }
 
-        // 初始化執行
+        
         window.onload = () => {
             initWheel();
         };
