@@ -27,7 +27,6 @@
         }
         header { margin-bottom: 20px; text-align: center; }
         
-        /* 導覽選單 */
         nav { margin-bottom: 30px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
         nav button {
             padding: 10px 18px; font-size: 15px; border: none; border-radius: 8px;
@@ -35,7 +34,6 @@
         }
         nav button.active { background-color: var(--primary); color: white; }
 
-        /* 遊戲視窗容器 */
         .game-container {
             background: var(--card-bg); padding: 30px; border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.08); width: 100%; max-width: 500px;
@@ -43,13 +41,11 @@
         }
         .game-container.active { display: block; }
 
-        /* 通用元件 */
         input, button.game-btn {
             padding: 10px; font-size: 16px; margin: 10px 5px; border-radius: 6px; border: 1px solid #ccc;
         }
         button.game-btn { background: var(--primary); color: white; border: none; cursor: pointer; font-weight: bold;}
         
-        /* 彈窗和BLOCK */
         .overlay {
             position: fixed; top:0; left:0; width:100%; height:100%; 
             background: rgba(0,0,0,0.75); display: flex; justify-content: center; 
@@ -64,7 +60,6 @@
         .btn-cancel { background-color: var(--danger); color: white; border: none; padding: 12px 25px; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold;}
         #block-screen { display: none; color: white; text-align: center; font-size: 24px; font-weight: bold;}
 
-        /* 反應測試方塊 */
         #reaction-box {
             width: 100%; height: 200px; background-color: var(--danger); color: white;
             display: flex; align-items: center; justify-content: center;
@@ -72,7 +67,6 @@
             user-select: none;
         }
 
-        /* 翻牌記憶配對 */
         .memory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 20px; }
         .memory-card {
             height: 70px; background-color: #34495e; color: transparent;
@@ -82,7 +76,6 @@
         .memory-card.flipped { background-color: #f1c40f; color: #fff; transform: rotateY(180deg); }
         .memory-card.matched { background-color: var(--success); color: #fff; cursor: default; }
 
-        /* 打地鼠 */
         .whack-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 20px; }
         .whack-hole {
             height: 90px; background-color: #795548; border-radius: 50%;
@@ -94,7 +87,6 @@
         }
         .whack-hole.active .whack-mole { top: 15%; background-color: #a1887f; }
 
-        /* 幸運輪盤 */
         .wheel-container { position: relative; width: 200px; height: 200px; margin: 20px auto; }
         #canvas-wheel { border-radius: 50%; transition: transform 4s cubic-bezier(0.1, 0.8, 0.1, 1); }
         .wheel-pointer {
@@ -103,34 +95,10 @@
             border-top: 25px solid #e74c3c; z-index: 10;
         }
 
-        /* 頁尾*/
         footer { margin-top: auto; padding: 30px 0 10px 0; font-size: 14px; color: #888; text-align: center; width: 100%; }
     </style>
 </head>
 <body>
-
-    <div id="terms-modal" class="overlay">
-        <div class="modal-content">
-            <h2 style="font-size: 24px; color: #333; margin-bottom: 15px;">⚠️ 網頁注意</h2>
-            <p style="text-align: left; line-height: 1.6; color: #666;">
-                你好！這是我測試製作的HTML5微型遊戲網頁！在您進入之前，請詳閱並同意以下內容：<br><br>
-                <strong>1. 娛樂至上：</strong> 本網頁所有遊戲數據皆存於瀏覽器中，重新整理即會重置。<br>
-                <strong>2. 禁止拷貝：</strong> 作者為大同大學不分系_胡鈞揚，其餘人不可以自己名義發布。<br>
-                <strong>3. 最後：</strong> 玩得愉快！
-            </p>
-            <div class="modal-btns">
-                <button class="btn-agree" onclick="acceptTerms()">同意進入</button>
-                <button class="btn-cancel" onclick="rejectTerms()">拒絕並離開</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="block-screen" class="overlay" style="display: none;">
-        <div>
-            <p>❌ 由於您拒絕了使用者條款，我們無法為您開放遊戲權限。</p>
-            <p style="font-size: 16px; color: #aaa; margin-top: 10px;">請重新整理網頁並點選「同意」以解除封鎖。</p>
-        </div>
-    </div>
 
     <header>
         <h1>小遊戲精選集</h1>
@@ -198,23 +166,12 @@
     </footer>
 
     <script>
-        
-        function acceptTerms() {
-            document.getElementById('terms-modal').style.display = 'none';
-        }
-        function rejectTerms() {
-            document.getElementById('terms-modal').style.display = 'none';
-            document.getElementById('block-screen').style.display = 'flex';
-        }
-
-       
         function switchGame(gameId) {
             document.querySelectorAll('.game-container').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('nav button').forEach(el => el.classList.remove('active'));
             
             document.getElementById(`game-${gameId}`).classList.add('active');
             document.getElementById(`btn-${gameId}`).classList.add('active');
-            
             
             if(gameId === 'guess') resetGuess();
             if(gameId === 'reaction') resetReaction();
@@ -223,7 +180,6 @@
             if(gameId === 'wheel') initWheel();
         }
 
-        // ===猜數字邏輯 ===
         let targetNumber = Math.floor(Math.random() * 100) + 1;
         function checkGuess() {
             const input = document.getElementById('guess-input');
@@ -242,7 +198,6 @@
             document.getElementById('guess-input').value = "";
         }
 
-        // === 反應時間測試邏輯 ===
         let reactionState = "idle"; 
         let startTime, timerTimeout;
         const rBox = document.getElementById('reaction-box');
@@ -284,7 +239,6 @@
             }
         }
 
-        // === 翻牌記憶配對邏輯 ===
         const items = ['🍎', '🍎', '🍌', '🍌', '🍇', '🍇', '🍉', '🍉', '🍒', '🍒', '🍓', '🍓', '🥑', '🥑', '🍍', '🍍'];
         let flippedCards = [];
         let matchedCount = 0;
@@ -300,7 +254,6 @@
             isWaiting = false;
             document.getElementById('memory-flips').innerText = flipCount;
 
-            // 洗牌算法
             const shuffled = [...items].sort(() => Math.random() - 0.5);
             shuffled.forEach((item, index) => {
                 const card = document.createElement('div');
@@ -343,7 +296,6 @@
             }
         }
 
-        // === 打地鼠邏輯 ===
         let whackScore = 0;
         let whackTimeLeft = 15;
         let whackActiveHole = -1;
@@ -381,7 +333,6 @@
             whackActiveHole = randHole;
             holes[whackActiveHole].classList.add('active');
 
-            // 地鼠停留時間隨機
             const duration = Math.random() * 400 + 600;
             whackMoleTimeout = setTimeout(() => {
                 showMole();
@@ -395,7 +346,7 @@
                 document.querySelectorAll('.whack-hole')[whackActiveHole].classList.remove('active');
                 whackActiveHole = -1;
                 clearTimeout(whackMoleTimeout);
-                showMole(); // 打中後立刻更換位置
+                showMole();
             }
         }
         function endWhackGame() {
@@ -406,7 +357,6 @@
             document.getElementById('whack-start-btn').style.display = 'inline-block';
         }
 
-        // ===幸運輪盤邏輯 ===
         const options = ["大吉", "中吉", "小吉", "末吉", "凶", "大凶"];
         const colors = ["#ff9999", "#ffcc99", "#ffff99", "#b3ffb3", "#99ccff", "#cc99ff"];
         let startAngle = 0;
@@ -428,7 +378,6 @@
                 ctx.lineTo(100, 100);
                 ctx.fill();
 
-                // 繪製文字
                 ctx.save();
                 ctx.fillStyle = "#333";
                 ctx.font = "bold 12px sans-serif";
@@ -443,14 +392,12 @@
             isSpinning = true;
             document.getElementById('wheel-result').innerText = "命運之輪瘋狂轉動中...";
             
-            // 隨機旋轉度數
             const spinAngleStart = Math.random() * 1000 + 2000;
             const wheel = document.getElementById('canvas-wheel');
             wheel.style.transform = `rotate(${spinAngleStart}deg)`;
 
             setTimeout(() => {
                 isSpinning = false;
-                // 計算落點
                 const degrees = spinAngleStart % 360;
                 
                 const index = Math.floor(((360 - degrees + 270) % 360) / (360 / options.length));
@@ -458,7 +405,6 @@
             }, 4000); 
         }
 
-        
         window.onload = () => {
             initWheel();
         };
